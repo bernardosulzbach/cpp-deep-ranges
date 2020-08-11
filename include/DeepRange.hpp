@@ -22,7 +22,11 @@ class DeepRange {
   It itEnd;
 
   using IteratorOfDereferenceType = IteratorType<DereferenceType<It>>;
-  std::optional<DeepRange<IteratorOfDereferenceType, Depth - 1U>> nestedDeepRange;
+
+  // Use an anonymous union to prevent wasting memory with std::optional or the like.
+  union {
+    DeepRange<IteratorOfDereferenceType, Depth - 1U> nestedDeepRange;
+  };
 
   void makeNestedDeepRange() {
     nestedDeepRange = DeepRange<IteratorOfDereferenceType, Depth - 1U>(std::begin(*itBegin), std::end(*itBegin));
@@ -44,10 +48,10 @@ public:
   }
 
   DeepRange &operator++() {
-    if (!nestedDeepRange.value().isExhausted()) {
-      ++(*nestedDeepRange);
+    if (!nestedDeepRange.isExhausted()) {
+      ++nestedDeepRange;
     }
-    if (nestedDeepRange.value().isExhausted()) {
+    if (nestedDeepRange.isExhausted()) {
       ++itBegin;
       if (itBegin == itEnd) {
         return (*this);
@@ -58,7 +62,7 @@ public:
   }
 
   auto operator*() {
-    return *(nestedDeepRange.value());
+    return *(nestedDeepRange);
   }
 
   template <typename Callable>
