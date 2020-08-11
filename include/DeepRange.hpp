@@ -6,6 +6,7 @@
 #include "Range.hpp"
 #include "Types.hpp"
 
+namespace DeepRanges {
 /**
  * A DeepRange of depth N has two iterators: current position and end.
  *
@@ -15,18 +16,16 @@
  */
 template <typename It, U32 Depth>
 class DeepRange {
-  static_assert(Depth > 1);
-
-  using ValueType = typename std::iterator_traits<It>::value_type;
-  using IteratorOfValueType = typename ValueType::iterator;
+  static_assert(Depth > 1U);
 
   It itBegin;
   It itEnd;
 
-  std::optional<DeepRange<IteratorOfValueType, Depth - 1>> nestedDeepRange;
+  using IteratorOfDereferenceType = IteratorType<DereferenceType<It>>;
+  std::optional<DeepRange<IteratorOfDereferenceType, Depth - 1U>> nestedDeepRange;
 
   void makeNestedDeepRange() {
-    nestedDeepRange = DeepRange<IteratorOfValueType, Depth - 1>(std::begin(*itBegin), std::end(*itBegin));
+    nestedDeepRange = DeepRange<IteratorOfDereferenceType, Depth - 1U>(std::begin(*itBegin), std::end(*itBegin));
   }
 
 public:
@@ -36,32 +35,47 @@ public:
     }
   }
 
-  void operator++() {
+  [[nodiscard]] It begin() const {
+    return itBegin;
+  }
+
+  [[nodiscard]] It end() const {
+    return itEnd;
+  }
+
+  DeepRange &operator++() {
     if (!nestedDeepRange.value().isExhausted()) {
       ++(*nestedDeepRange);
     }
     if (nestedDeepRange.value().isExhausted()) {
-      itBegin = std::next(itBegin);
+      ++itBegin;
       if (itBegin == itEnd) {
-        return;
+        return (*this);
       }
       makeNestedDeepRange();
     }
+    return (*this);
   }
 
   auto operator*() {
     return *(nestedDeepRange.value());
   }
 
-  [[nodiscard]] const bool isExhausted() const noexcept {
+  template <typename Callable>
+  void apply(Callable &&c) {
+    while (!isExhausted()) {
+      c(*(*this));
+      ++(*this);
+    }
+  }
+
+  [[nodiscard]] bool isExhausted() const noexcept {
     return itBegin == itEnd;
   }
 };
 
 template <typename It>
 class DeepRange<It, 1> {
-  using ValueType = typename std::iterator_traits<It>::value_type;
-
   It itBegin;
   It itEnd;
 
@@ -70,19 +84,28 @@ public:
   }
 
   void operator++() {
-    itBegin = std::next(itBegin);
+    ++itBegin;
   }
 
   auto operator*() {
     return *itBegin;
   }
 
-  [[nodiscard]] const bool isExhausted() const noexcept {
+  template <typename Callable>
+  void apply(Callable &&c) {
+    while (!isExhausted()) {
+      c(*(*this));
+      ++(*this);
+    }
+  }
+
+  [[nodiscard]] bool isExhausted() const noexcept {
     return itBegin == itEnd;
   }
 };
 
-template <typename Iterable, U32 Depth>
-DeepRange<decltype(std::declval<Iterable>().begin()), Depth> makeDeepRange(Iterable &&i) {
-  return DeepRange<decltype(std::declval<Iterable>().begin()), Depth>(i.begin(), i.end());
+template <U32 Depth, typename Iterable>
+DeepRange<IteratorType<Iterable>, Depth> makeDeepRange(Iterable &&i) {
+  return DeepRange<IteratorType<Iterable>, Depth>(std::begin(i), std::end(i));
 }
+} // namespace DeepRanges
