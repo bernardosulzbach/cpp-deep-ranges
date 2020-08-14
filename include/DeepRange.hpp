@@ -10,9 +10,11 @@ namespace DeepRanges {
 /**
  * A DeepRange of depth N has two iterators: current position and end.
  *
- * For each position, it creates a DeepRange of depth N - 1, if N > 1.
+ * The size of a DeepRange of an iterator It and depth N is guaranteed to be N * sizeof(It).
  *
- * If N = 1, it returns its elements directly.
+ * For each position, it creates a DeepRange of depth N - 1, if N > 1. If N = 1, it returns its elements directly.
+ *
+ * Requires the pre-increment, the dereference, and the equality operators to be defined for all iterators.
  */
 template <typename It, U32 Depth>
 class DeepRange {
@@ -34,9 +36,10 @@ class DeepRange {
 
 public:
   DeepRange(It iBegin, It iEnd) : itBegin(iBegin), itEnd(iEnd) {
-    if (itBegin != itEnd) {
-      makeNestedDeepRange();
+    if (itBegin == itEnd) {
+      return;
     }
+    makeNestedDeepRange();
   }
 
   [[nodiscard]] It begin() const {
@@ -54,14 +57,14 @@ public:
     if (nestedDeepRange.isExhausted()) {
       ++itBegin;
       if (itBegin == itEnd) {
-        return (*this);
+        return *this;
       }
       makeNestedDeepRange();
     }
-    return (*this);
+    return *this;
   }
 
-  auto operator*() {
+  [[nodiscard]] auto operator*() {
     return *(nestedDeepRange);
   }
 
@@ -87,11 +90,12 @@ public:
   DeepRange(It iBegin, It iEnd) : itBegin(iBegin), itEnd(iEnd) {
   }
 
-  void operator++() {
+  DeepRange &operator++() {
     ++itBegin;
+    return *this;
   }
 
-  auto operator*() {
+  [[nodiscard]] auto operator*() {
     return *itBegin;
   }
 

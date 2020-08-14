@@ -8,7 +8,7 @@ namespace DeepRanges {
 /**
  * A plain and simple Range.
  *
- * Needs begin(It), end(It), and next(It).
+ * Requires the pre-increment, the dereference, and the equality operators to be defined for It.
  */
 template <typename It>
 class Range {
@@ -32,7 +32,7 @@ public:
     return *this;
   }
 
-  auto operator*() {
+  [[nodiscard]] auto operator*() {
     return *itBegin;
   }
 
