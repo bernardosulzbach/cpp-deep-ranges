@@ -32,10 +32,7 @@ public:
     return *this;
   }
 
-  // TODO: use something that works with more types, such as decltype of operator*.
-  // TODO: check if this can't be auto.
-  using ValueType = typename std::iterator_traits<It>::value_type;
-  ValueType operator*() {
+  auto operator*() {
     return *itBegin;
   }
 
