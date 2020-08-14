@@ -81,3 +81,21 @@ BOOST_AUTO_TEST_CASE(test_deep_range_of_depth_3_over_vector_should_use_the_same_
   const auto range = makeDeepRange<3>(v);
   BOOST_TEST(6 * sizeof(void *) == sizeof(range));
 }
+
+BOOST_AUTO_TEST_CASE(test_deep_range_of_depth_4_over_empty_list) {
+  const auto l = std::list<std::list<std::list<std::list<S32>>>>{};
+  const auto expectedResult = std::vector<S32>{};
+  BOOST_TEST(expectedResult == toVector(makeDeepRange<4>(l)));
+}
+
+BOOST_AUTO_TEST_CASE(test_deep_range_of_depth_4_over_non_empty_list) {
+  const auto l = std::list<std::list<std::list<std::list<S32>>>>{{{{1, 2}, {3}}, {{4}}}};
+  const auto expectedResult = std::vector<S32>{1, 2, 3, 4};
+  BOOST_TEST(expectedResult == toVector(makeDeepRange<4>(l)));
+}
+
+BOOST_AUTO_TEST_CASE(test_deep_range_of_depth_4_over_list_should_use_the_same_space_as_8_pointers) {
+  const auto l = std::list<std::list<std::list<std::list<S32>>>>{};
+  const auto range = makeDeepRange<4>(l);
+  BOOST_TEST(8 * sizeof(void *) == sizeof(range));
+}
