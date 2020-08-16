@@ -34,37 +34,47 @@ class DeepRange {
     nestedDeepRange = DeepRange<IteratorOfDereferenceType, Depth - 1U>(std::begin(*itBegin), std::end(*itBegin));
   }
 
+  // Advances the deep range until it either dereferences to a value or is exhausted.
+  // If the deep range already already dereferences to a value or is exhausted, nothing is done.
+  void seek() noexcept {
+    if (itBegin == itEnd) {
+      return;
+    }
+    while (nestedDeepRange.isExhausted()) {
+      ++itBegin;
+      if (itBegin == itEnd) {
+        return;
+      }
+      makeNestedDeepRange();
+    }
+  }
+
 public:
   DeepRange(It iBegin, It iEnd) : itBegin(iBegin), itEnd(iEnd) {
     if (itBegin == itEnd) {
       return;
     }
     makeNestedDeepRange();
+    seek();
   }
 
-  [[nodiscard]] It begin() const {
+  [[nodiscard]] It begin() const noexcept {
     return itBegin;
   }
 
-  [[nodiscard]] It end() const {
+  [[nodiscard]] It end() const noexcept {
     return itEnd;
   }
 
-  DeepRange &operator++() {
+  DeepRange &operator++() noexcept {
     if (!nestedDeepRange.isExhausted()) {
       ++nestedDeepRange;
     }
-    if (nestedDeepRange.isExhausted()) {
-      ++itBegin;
-      if (itBegin == itEnd) {
-        return *this;
-      }
-      makeNestedDeepRange();
-    }
+    seek();
     return *this;
   }
 
-  [[nodiscard]] auto operator*() {
+  [[nodiscard]] auto operator*() noexcept {
     return *(nestedDeepRange);
   }
 
@@ -90,12 +100,20 @@ public:
   DeepRange(It iBegin, It iEnd) : itBegin(iBegin), itEnd(iEnd) {
   }
 
-  DeepRange &operator++() {
+  [[nodiscard]] It begin() const noexcept {
+    return itBegin;
+  }
+
+  [[nodiscard]] It end() const noexcept {
+    return itEnd;
+  }
+
+  DeepRange &operator++() noexcept {
     ++itBegin;
     return *this;
   }
 
-  [[nodiscard]] auto operator*() {
+  [[nodiscard]] auto operator*() noexcept {
     return *itBegin;
   }
 
