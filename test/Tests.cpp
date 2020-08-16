@@ -58,7 +58,25 @@ BOOST_AUTO_TEST_CASE(test_deep_range_of_depth_2_over_vector_should_use_the_same_
   BOOST_TEST(4 * sizeof(void *) == sizeof(range));
 }
 
-BOOST_AUTO_TEST_CASE(test_deep_range_of_depth_2_over_non_empty_vector) {
+BOOST_AUTO_TEST_CASE(test_deep_range_of_depth_2_over_non_empty_vector_of_empty_vectors) {
+  const auto v = std::vector<std::vector<S32>>{{}, {}};
+  const auto expectedResult = std::vector<S32>{};
+  BOOST_TEST(expectedResult == toVector(makeDeepRange<2>(v)));
+}
+
+BOOST_AUTO_TEST_CASE(test_deep_range_of_depth_2_over_non_empty_vector_with_an_empty_vector_at_the_start) {
+  const auto v = std::vector<std::vector<S32>>{{}, {1, 2}};
+  const auto expectedResult = std::vector<S32>{1, 2};
+  BOOST_TEST(expectedResult == toVector(makeDeepRange<2>(v)));
+}
+
+BOOST_AUTO_TEST_CASE(test_deep_range_of_depth_2_over_non_empty_vector_with_an_empty_vector_at_the_end) {
+  const auto v = std::vector<std::vector<S32>>{{1, 2}, {}};
+  const auto expectedResult = std::vector<S32>{1, 2};
+  BOOST_TEST(expectedResult == toVector(makeDeepRange<2>(v)));
+}
+
+BOOST_AUTO_TEST_CASE(test_deep_range_of_depth_2_over_non_empty_vector_of_non_empty_vectors) {
   const auto v = std::vector<std::vector<S32>>{{1, 2}, {3, 4}};
   const auto expectedResult = std::vector<S32>{1, 2, 3, 4};
   BOOST_TEST(expectedResult == toVector(makeDeepRange<2>(v)));
