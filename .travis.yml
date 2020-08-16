@@ -23,4 +23,4 @@ script:
   - cmake -DCMAKE_BUILD_TYPE=Debug ..
   - clang-tidy ../src/*
   - cmake --build .
-  - ./test --report_level=detailed
+  - ./tests --report_level=detailed
