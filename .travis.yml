@@ -11,6 +11,7 @@ addons:
     packages:
       - build-essential
       - cmake
+      - libboost-all-dev
 
 script:
   # Skip formatting check because clang-format in Travis is too old.
