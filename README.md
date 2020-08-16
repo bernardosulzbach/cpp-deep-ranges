@@ -1,5 +1,7 @@
 # Deep C++ ranges
 
+[![Build Status](https://travis-ci.com/bernardosulzbach/cpp-deep-ranges.svg?branch=master)](https://travis-ci.com/bernardosulzbach/cpp-deep-ranges)
+
 An example implementation of deep C++ ranges.
 
 If you want to report an issue or talk about changes, feel free to reach out to me either directly or through issues in this repository.
