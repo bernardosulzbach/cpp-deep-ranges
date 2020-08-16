@@ -13,8 +13,9 @@ addons:
       - cmake
 
 script:
-  # Ensure code is already properly formatted.
-  - diff -u <(cat src/* test/*) <(clang-format src/* test/*)
+  # Skip formatting check because clang-format in Travis is too old.
+  #   # Ensure code is already properly formatted.
+  #   - diff -u <(cat include/* test/*) <(clang-format include/* test/*)
   # Ensure no committed file is larger than the file size limit.
   - python3 scripts/ensure_git_has_no_large_files.py
   - mkdir build && cd build || exit
